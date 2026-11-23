@@ -1,0 +1,60 @@
+[
+  {
+    "name": "workspace",
+    "description": "Call this first. Returns the workspace that the player marked: its id, size, the player's position and facing in local coordinates, the limits and whether writes are paused. Every other tool needs the returned workspace_id. If a call fails because the workspace changed, call this tool again and read again.",
+    "inputSchema": {"type": "object", "properties": {}, "additionalProperties": false}
+  },
+  {
+    "name": "read",
+    "description": "Reads blocks in the workspace or in a part of it. detail=summary gives block counts, the bounds of non-air cells and a height map: start with it. detail=layers gives a palette and one text grid per y level, bottom layer first. In a grid, each row is labeled z=N and runs from west to east starting at the x given in the box line; each character is one cell. Equal layers that follow each other are printed once as y=a..b. A '*' after a palette entry marks a block with extra data, such as a chest.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "workspace_id": {"type": "string"},
+        "detail": {"type": "string", "enum": ["summary", "layers"]},
+        "from": {"type": "array", "items": {"type": "integer"}, "minItems": 3, "maxItems": 3, "description": "Optional corner [x,y,z] of a part to read."},
+        "to": {"type": "array", "items": {"type": "integer"}, "minItems": 3, "maxItems": 3, "description": "Optional opposite corner [x,y,z], inclusive."}
+      },
+      "required": ["workspace_id", "detail"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "edit",
+    "description": "Changes blocks with a batch of operations, applied in order; a later operation overwrites an earlier one in the same cell. The whole batch is checked first: if one item is wrong, nothing changes and the error lists each bad item. Blocks use the /setblock text form, for example oak_stairs[facing=north,half=top]; properties left out take their default. Blocks are placed frozen: no neighbor updates, so sand does not fall and water does not flow. Coordinates are local: [0,0,0] is the lowest corner, x grows east, y grows up, z grows south; 'from' and 'to' are inclusive. Operations: {op:set, at:[[x,y,z],...], block} | {op:fill, from, to, block, mode: solid|hollow|walls|frame} where hollow is a shell with air inside, walls are the four vertical sides only, frame is the 12 edges | {op:line, from, to, block} | {op:replace, from, to, match, block} where match is a block id (any state) or a full state | {op:grid, origin:[x,y,z], palette:{char:block}, layers:[[row,...],...]} with layers bottom to top, rows north to south (z grows), characters west to east (x grows), '.' is air unless the palette says otherwise, '~' keeps the cell. Rows copied from a read with their 'z=N ' label are accepted. With dry_run=true the batch is only checked.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "workspace_id": {"type": "string"},
+        "label": {"type": "string", "description": "A few words that describe the edit, shown in the undo list."},
+        "dry_run": {"type": "boolean"},
+        "operations": {"type": "array", "items": {"type": "object"}}
+      },
+      "required": ["workspace_id", "label", "operations"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "undo",
+    "description": "Reverts the newest agent edits, newest first. A cell that the player changed after the edit is skipped and counted.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {
+        "workspace_id": {"type": "string"},
+        "count": {"type": "integer", "minimum": 1, "description": "How many edits to revert. Default 1."}
+      },
+      "required": ["workspace_id"],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "blocks",
+    "description": "Searches block ids by part of the name and lists each match with its properties and allowed values. Use it when unsure of a block name or a property.",
+    "inputSchema": {
+      "type": "object",
+      "properties": {"search": {"type": "string"}},
+      "required": ["search"],
+      "additionalProperties": false
+    }
+  }
+]

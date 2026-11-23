@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "awe",
+  "version": "${version}",
+  "name": "AWE (Agentic World Edit)",
+  "description": "Lets an AI agent read and edit a marked box in the world through MCP tools.",
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["io.github.yannickspies.awe.Awe"]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}

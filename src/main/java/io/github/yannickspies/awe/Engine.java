@@ -69,6 +69,10 @@ public final class Engine {
 		this.config = config;
 	}
 
+	public boolean hasWork() {
+		return !incoming.isEmpty() || !active.isEmpty();
+	}
+
 	public boolean isPaused() {
 		return isPaused;
 	}

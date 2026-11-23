@@ -43,6 +43,11 @@ public final class Awe implements ModInitializer {
 		return engine;
 	}
 
+	/** True while an edit is queued or an MCP request came in during the last five minutes. */
+	public static boolean isAgentActive() {
+		return engine != null && (engine.hasWork() || System.nanoTime() - McpServer.lastRequestNanos() < 300_000_000_000L);
+	}
+
 	public static String version() {
 		return FabricLoader.getInstance().getModContainer("awe").map(c -> c.getMetadata().getVersion().getFriendlyString()).orElse("dev");
 	}

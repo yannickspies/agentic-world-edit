@@ -42,6 +42,7 @@ public final class McpServer {
 	private final Config config;
 	private final MinecraftServer server;
 	private final JsonArray tools;
+	private static volatile long lastRequestNanos = System.nanoTime() - 600_000_000_000L;
 	private HttpServer http;
 	private ExecutorService executor;
 
@@ -53,6 +54,10 @@ public final class McpServer {
 		} catch (IOException | NullPointerException e) {
 			throw new IllegalStateException("AWE cannot load awe/tools.json", e);
 		}
+	}
+
+	public static long lastRequestNanos() {
+		return lastRequestNanos;
 	}
 
 	public void start() throws IOException {
@@ -98,6 +103,7 @@ public final class McpServer {
 				send(exchange, 401, "{\"error\":\"missing or wrong token\"}");
 				return;
 			}
+			lastRequestNanos = System.nanoTime();
 			if (!"POST".equals(exchange.getRequestMethod())) {
 				exchange.getResponseHeaders().add("Allow", "POST");
 				send(exchange, 405, "");

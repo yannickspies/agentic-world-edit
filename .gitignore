@@ -41,3 +41,6 @@ replay_*.log
 
 # local server for manual and agent tests
 run/
+
+# python
+__pycache__/
